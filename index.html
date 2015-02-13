@@ -85,10 +85,25 @@
 					bullet.posY = bot.posY;
 				};
 
+				// Increment the bullet position so that it may move to the position
+				// ..towards which it is fired
 				bullet.posX += Math.cos(relAngleX * 0.017) * 15;
 				bullet.posY -= Math.sin(relAngleY * -0.017) * 15;
 
+				// If the bullet tries to go outside the canvas in sideways
+				if ( ( bullet.posX > canvas.width ) || ( bullet.posX < 0 ) ) {
+					// To divert the bullet in the reverse direction
+					relAngleX = relAngleX - relAngleY;
+				};
+
 				context.fillRect(bullet.posX, bullet.posY, bullet.width, bullet.height);
+
+				// If the bullet goes out of the top of canvas
+				if ( bullet.posY < 0 ) {
+					// Reset that bullet
+					bullet.posX = bullet.posY = 0;
+					bulletFired = false
+				};
 			};
 
 			if ( barHit ) {
