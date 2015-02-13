@@ -122,6 +122,9 @@
 						// Change the fired point, as this is the point where the rope will be thrown
 						firedPointX = bullet.posX;
 						firedPointY = bullet.posY;
+
+						// Reset the bullet position
+						bullet.posX = bullet.posY = 0;
 						
 						return;
 					};
