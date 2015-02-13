@@ -108,12 +108,17 @@
 					// If the bullet's current position overlaps with 
 					// any of the bars
 					if ((
-						bullet.posX > bars[i].posX &&
-						bullet.posX < ( bars[i].posX + barWidth )
+						bullet.posX >= bars[i].posX &&
+						bullet.posX <= ( bars[i].posX + barWidth )
 					) && (
-						bullet.posY > bars[i].posY &&
-						bullet.posY < ( bars[i].posY + barHeight )
+						bullet.posY >= bars[i].posY &&
+						bullet.posY <= ( bars[i].posY + barHeight + 5 ) 
 					)) {
+						// ^Added 5 to the height of bar to avoid the glitch
+						// where the rope wasn't able to hook itself
+						// in the middle of the bar
+						// @todo Implement the proper solution, adding the number
+						//       causes it to even hook the into the air on some points on bar
 						
 						// No bullet fired, it was a bar hit
 						bulletFired = false;
@@ -125,11 +130,12 @@
 
 						// Reset the bullet position
 						bullet.posX = bullet.posY = 0;
-						
+
 						return;
 					};
 				};
 
+				// Show the bullet
 				context.fillRect(bullet.posX, bullet.posY, bullet.width, bullet.height);
 
 				// If the bullet goes out of the top of canvas
