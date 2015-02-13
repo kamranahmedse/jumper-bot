@@ -16,8 +16,8 @@
 			bot = {},
 			bullet = {},
 			context = canvas.getContext('2d'),
-			hooks = [],
-			hookCount = 3,
+			bars = [],
+			barCount = 3,
 			barWidth = 100,
 			barHeight = 10,
 			firedPointX = 0,
@@ -25,7 +25,8 @@
 			barHitPointX = 0,
 			barHitPointY = 0,
 			barHit = false,
-			bulletFired = false;
+			bulletFired = false,
+			bulletSpeed = 15;
 
 		canvas.width = 400;
 		canvas.height = 500;
@@ -44,15 +45,20 @@
 
 		var relAngleX, relAngleY, relFiredPointX, relFiredPointY;
 
-		// Generate the hooks positions
-		for (var i = 0; i < hookCount; i++) {
-			hooks.push({
+		// Generate the bars positions
+		for (var i = 0; i < barCount; i++) {
+			bars.push({
 				posX: Math.random() * ( canvas.width / 2 ),
-				posY: ( canvas.height / hookCount ) * i     // So to make the hooks span the whole height
+				posY: ( canvas.height / barCount ) * i     // So to make the bars span the whole height
 			});
 		};
 
 		canvas.onclick = function ( ev ) {
+
+			// Reset the bar hit or it will start throwing the rope
+			// ..instead of the bullet
+			barHit = false;
+
 			firedPointX = ev.clientX;
 			firedPointY = ev.clientY;
 
@@ -71,9 +77,9 @@
 			// Create the player
 			context.fillRect(bot.posX, bot.posY, bot.width, bot.height);
 
-			// Draw the hooks
-			for (var i = 0; i < hookCount; i++) {
-				context.fillRect(hooks[i].posX, hooks[i].posY, barWidth, barHeight);
+			// Draw the bars
+			for (var i = 0; i < barCount; i++) {
+				context.fillRect(bars[i].posX, bars[i].posY, barWidth, barHeight);
 			};
 
 			// If the bullet gets fired
@@ -87,13 +93,38 @@
 
 				// Increment the bullet position so that it may move to the position
 				// ..towards which it is fired
-				bullet.posX += Math.cos(relAngleX * 0.017) * 15;
-				bullet.posY -= Math.sin(relAngleY * -0.017) * 15;
+				bullet.posX += Math.cos(relAngleX * 0.017) * bulletSpeed;
+				bullet.posY -= Math.sin(relAngleY * -0.017) * bulletSpeed;
 
 				// If the bullet tries to go outside the canvas in sideways
 				if ( ( bullet.posX > canvas.width ) || ( bullet.posX < 0 ) ) {
 					// To divert the bullet in the reverse direction
 					relAngleX = relAngleX - relAngleY;
+				};
+
+				// To check if the bullet has hit any of the bars
+				for (var i = 0; i < barCount; i++) {
+
+					// If the bullet's current position overlaps with 
+					// any of the bars
+					if ((
+						bullet.posX > bars[i].posX &&
+						bullet.posX < ( bars[i].posX + barWidth )
+					) && (
+						bullet.posY > bars[i].posY &&
+						bullet.posY < ( bars[i].posY + barHeight )
+					)) {
+						
+						// No bullet fired, it was a bar hit
+						bulletFired = false;
+						barHit = true;
+							
+						// Change the fired point, as this is the point where the rope will be thrown
+						firedPointX = bullet.posX;
+						firedPointY = bullet.posY;
+						
+						return;
+					};
 				};
 
 				context.fillRect(bullet.posX, bullet.posY, bullet.width, bullet.height);
