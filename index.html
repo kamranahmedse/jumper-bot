@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>My Canvas Game</title>
+	<style type="text/css">
+	   * { margin: 0px; padding: 0px; }
+	   /*canvas { margin: 8% auto; display: block;}*/
+	</style>
+</head>
+<body>
+	<canvas id="swingbot"></canvas>
+
+	<script type="text/javascript">
+		
+		var canvas = document.getElementById('swingbot'),
+			bot = {},
+			bullet = {},
+			context = canvas.getContext('2d'),
+			hooks = [],
+			hookCount = 3,
+			barWidth = 100,
+			barHeight = 10,
+			firedPointX = 0,
+			firedPointY = 0,
+			bulletFired = false;
+
+		canvas.width = 400;
+		canvas.height = 500;
+
+		context = canvas.getContext('2d');
+
+		bot.width = 10;
+		bot.height = 10;
+		bot.posX = canvas.width / 2;
+		bot.posY = canvas.height - bot.height - 10;
+
+		// Generate the hooks positions
+		for (var i = 0; i < hookCount; i++) {
+			hooks.push({
+				posX: Math.random() * ( canvas.width / 2 ),
+				posY: ( canvas.height / hookCount ) * i     // So to make the hooks span the whole height
+			});
+		};
+
+		canvas.onclick = function ( ev ) {
+			firedPointX = ev.clientX;
+			firedPointY = ev.clientY;
+
+			console.log( ev.clientX + "=-=-" + bot.posX);
+
+			bulletFired = true;
+		}
+
+		window.setInterval(function () {
+			// Clear 
+			context.clearRect(0, 0, canvas.width, canvas.height);
+
+			// Create the player
+			context.fillRect(bot.posX, bot.posY, bot.width, bot.height);
+
+			for (var i = 0; i < hookCount; i++) {
+				context.fillRect(hooks[i].posX, hooks[i].posY, barWidth, barHeight);
+			};
+
+			if ( bulletFired ) {
+				context.beginPath();
+				context.moveTo( bot.posX, bot.posY );
+				context.lineTo(firedPointX, firedPointY);
+				context.stroke();
+			};
+
+		}, 10);
+
+	</script>
+</body>
+</html>
