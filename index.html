@@ -22,6 +22,9 @@
 			barHeight = 10,
 			firedPointX = 0,
 			firedPointY = 0,
+			barHitPointX = 0,
+			barHitPointY = 0,
+			barHit = false,
 			bulletFired = false;
 
 		canvas.width = 400;
@@ -33,6 +36,13 @@
 		bot.height = 10;
 		bot.posX = canvas.width / 2;
 		bot.posY = canvas.height - bot.height - 10;
+
+		bullet.posX = 0;
+		bullet.posY = 0;
+		bullet.height = 4;
+		bullet.width = 4;
+
+		var relAngleX, relAngleY, relFiredPointX, relFiredPointY;
 
 		// Generate the hooks positions
 		for (var i = 0; i < hookCount; i++) {
@@ -46,7 +56,10 @@
 			firedPointX = ev.clientX;
 			firedPointY = ev.clientY;
 
-			console.log( ev.clientX + "=-=-" + bot.posX);
+			relFiredPointX = firedPointX - bot.posX;
+			relFiredPointY = firedPointY - bot.posY;
+
+			relAngleX = relAngleY = Math.atan2(relFiredPointY, relFiredPointX) * 57.32;
 
 			bulletFired = true;
 		}
@@ -58,11 +71,27 @@
 			// Create the player
 			context.fillRect(bot.posX, bot.posY, bot.width, bot.height);
 
+			// Draw the hooks
 			for (var i = 0; i < hookCount; i++) {
 				context.fillRect(hooks[i].posX, hooks[i].posY, barWidth, barHeight);
 			};
 
+			// If the bullet gets fired
 			if ( bulletFired ) {
+				
+				// If it is the first frame after bullet got fired
+				if ( !bullet.posX && !bullet.posY ) {
+					bullet.posX = bot.posX;
+					bullet.posY = bot.posY;
+				};
+
+				bullet.posX += Math.cos(relAngleX * 0.017) * 15;
+				bullet.posY -= Math.sin(relAngleY * -0.017) * 15;
+
+				context.fillRect(bullet.posX, bullet.posY, bullet.width, bullet.height);
+			};
+
+			if ( barHit ) {
 				context.beginPath();
 				context.moveTo( bot.posX, bot.posY );
 				context.lineTo(firedPointX, firedPointY);
