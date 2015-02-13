@@ -146,7 +146,8 @@
 				};
 			};
 
-			if ( barHit ) {
+			// If the bar was hit and the bot is not above the fired point
+			if ( barHit && bot.posY > ( firedPointY + 20 ) ) {
 				context.beginPath();
 				context.moveTo( bot.posX, bot.posY );
 				context.lineTo(firedPointX, firedPointY);
