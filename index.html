@@ -113,13 +113,7 @@
 					) && (
 						bullet.posY >= bars[i].posY &&
 						bullet.posY <= ( bars[i].posY + barHeight ) 
-					)) {
-						// ^Added 5 to the height of bar to avoid the glitch
-						// where the rope wasn't able to hook itself
-						// in the middle of the bar
-						// @todo Implement the proper solution, adding the number
-						//       causes it to even hook the into the air on some points on bar
-						
+					)) {						
 						// No bullet fired, it was a bar hit
 						bulletFired = false;
 						barHit = true;
@@ -146,10 +140,11 @@
 				};
 			};
 
-			// If the bar was hit and the bot is not above the fired point
+			// If the bar was hit and the fired point is not below the bot
 			if ( barHit && bot.posY > ( firedPointY + 20 ) ) {
 				context.beginPath();
-				context.moveTo( bot.posX, bot.posY );
+				// Changed the `x` a bit, so that the rope comes out of the head of the bot
+				context.moveTo( (bot.posX + bot.width / 2), bot.posY );
 				context.lineTo(firedPointX, firedPointY);
 				context.stroke();
 			};
