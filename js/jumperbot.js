@@ -116,7 +116,9 @@ var JumperBot = function () {
         // Draw the bars
         for (var i = 0; i < barCount; i++) {
 
+            // If the bar has gone out of the view
             if ( bars[i].posY > canvas.height ) {
+                // Take it back to the top
                 bars[i].posX = Math.random() * ( canvas.width / 2 );
                 bars[i].posY = 0
             }
@@ -260,8 +262,9 @@ var JumperBot = function () {
             };
 
             if ( moveBars ) {
+                // So to make the fired point move as the bar moves
                 firedPointY = firedPointY - swingY * 4;
-
+                
                 // Increase the score only if the bars are moving
                 currScore++;
             }
