@@ -8,6 +8,6 @@ You can **[play the game](http://kamranahmed.info/jumperbot)**.
 
 Feel free to improve or add any functionality.
 
-Thanks to [http://www.guillaumejuvenet.com/](http://www.guillaumejuvenet.com/) for letting me use his bot in the game.
+Thanks to [Guillaume Juvenet](http://www.guillaumejuvenet.com/) for letting me use his bot in the game.
 
 Happy Jumping!
