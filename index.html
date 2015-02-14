@@ -25,6 +25,7 @@
 			barHitPointX = 0,
 			barHitPointY = 0,
 			barHit = false,
+			moveBars = false,
 			n = 0,
 			swingX = 0,
 			swingY = 0,
@@ -84,6 +85,17 @@
 
 			// Draw the bars
 			for (var i = 0; i < barCount; i++) {
+
+				if ( bars[i].posY > canvas.height ) {
+					bars[i].posX = Math.random() * ( canvas.width / 2 );
+					bars[i].posY = 0
+				}
+
+				// Moving the bar upwards
+				if ( moveBars ) {
+					bars[i].posY = bars[i].posY - swingY * 4;
+				};
+
 				context.fillRect(bars[i].posX, bars[i].posY, barWidth, barHeight);
 			};
 
@@ -136,6 +148,8 @@
 
 						return;
 					};
+
+					barHit = false;
 				};
 
 				// Show the bullet
@@ -150,7 +164,10 @@
 
 			};
 
-			n = Math.sqrt(Math.pow((bot.posX - firedPointX), 2) + Math.pow((bot.posY - firedPointY), 2));
+			if ( moveBars ) {
+				firedPointY = firedPointY - swingY * 4;
+			}
+
 
 			// If the bar was hit and the fired point is not below the bot
 			// bot.posY > ( firedPointY + 20 ) because we want the bot to leave the rope if the hook goes lower to him
@@ -161,6 +178,8 @@
 				context.lineTo(firedPointX, firedPointY);
 				context.stroke();
 
+				n = Math.sqrt(Math.pow((bot.posX - firedPointX), 2) + Math.pow((bot.posY - firedPointY), 2));
+
 				swingX += ( firedPointX - bot.posX ) / (n * swingSpeed);
 				swingY += ( firedPointY - bot.posY ) / (n * swingSpeed);
 
@@ -168,14 +187,26 @@
 				barHit = false;
 			};
 
+			// If the bot is within the visible canvas
+			if ( swingY > 0 ) {
+				moveBars = false;
+			};
+
 			// To simulate gravity i.e. the bot may 
 			// get slowly pulled down
 			swingY += 0.01;
 
-			// If we have to swing the bot
-			if ( swingBot === true ) {
-				bot.posX += swingX;
-				bot.posY += swingY;
+			moveBars || (bot.posY += swingY * 4);
+			bot.posX += swingX;
+
+			// If the bot is about to reach the top
+			if ( bot.posY < ( canvas.width / 2 ) ) {
+				moveBars = true;
+			};
+
+			// If the bot tries to go outside the canvas
+			if ( bot.posX < 0 || ( bot.posX + bot.width ) > canvas.width ) {
+				swingX = -swingX; // Swing it backward
 			};
 
 		}, 10);
