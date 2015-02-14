@@ -153,6 +153,7 @@
 			n = Math.sqrt(Math.pow((bot.posX - firedPointX), 2) + Math.pow((bot.posY - firedPointY), 2));
 
 			// If the bar was hit and the fired point is not below the bot
+			// bot.posY > ( firedPointY + 20 ) because we want the bot to leave the rope if the hook goes lower to him
 			if ( barHit && bot.posY > ( firedPointY + 20 ) ) {
 				context.beginPath();
 				// Changed the `x` a bit, so that the rope comes out of the head of the bot
