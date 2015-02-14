@@ -6,6 +6,7 @@ var JumperBot = function () {
         bullet = {},
         bars = [],
 
+        // Game variables
         barCount = 3,
         barWidth = 100,
         barHeight = 15,
@@ -13,6 +14,9 @@ var JumperBot = function () {
         swingSpeed = 30,  // Higher it is, slower the bot will swing
         ropeThickness = 2, // Higher it is, thicker will the rope be
 
+        // Do not change below this line unless you know exactly what you are doing
+        scorePosX = 5,      // Position (x point) where score is to be displayed
+        scorePosY = 15,     // Position (y point) where score is to be displayed
         firedPointX = 0,    // Exact `x` point where user clicked
         firedPointY = 0,    // Exact `y` point where user clicked
         barHitPointX = 0,   // Point on canvas where the bullet hit the bar
@@ -72,6 +76,11 @@ var JumperBot = function () {
         };
     }
 
+    /**
+     * Sets up the variables to fire the bullet at specified position
+     * @param  int posX X point on canvas which is to be fired at
+     * @param  int posY     Y point on canvas which is to be fired at
+     */
     function fireBullet ( posX, posY ) {
         // Reset the bar hit or it will start throwing the rope
         // ..instead of the bullet
@@ -92,11 +101,17 @@ var JumperBot = function () {
         bulletFired = true;
     }
 
+    /**
+     * Populates the current score over top score on canvas
+     */
     function populateScore () {
-        context.fillText(currScore + '/' + topScore, 5, 15);   
+        context.fillText(currScore + '/' + topScore, scorePosX, scorePosY);
     }
 
 
+    /**
+     * Draws bars upon the canvas
+     */
     function drawBars () {
         // Draw the bars
         for (var i = 0; i < barCount; i++) {
@@ -106,7 +121,7 @@ var JumperBot = function () {
                 bars[i].posY = 0
             }
 
-            // Moving the bar upwards
+            // If the bars are to be moved
             if ( moveBars ) {
                 bars[i].posY = bars[i].posY - swingY * 4;
             };
@@ -115,15 +130,27 @@ var JumperBot = function () {
         };    
     }
 
+    /**
+     * Draws the player on the canvas
+     */
     function drawPlayer () {
         // context.fillRect(bot.posX, bot.posY, bot.width, bot.height);
         context.drawImage(botImg, bot.posX, bot.posY);
     }
 
+    /**
+     * Checks if the game is over or not
+     * @return {boolean} True if the game is over and false otherwise
+     */
     function isGameOver () {
         return !isActive;
     }
 
+    /**
+     * To check if the specified bar number is hit by the bullet or not
+     * @param  {integer}  barNum Bar number which is to be checked for the hit
+     * @return {Boolean}        True if the bar is hit or false otherwise
+     */
     function isNthBarHit ( barNum ) {
         return (
             bullet.posX >= bars[barNum].posX &&
@@ -134,6 +161,9 @@ var JumperBot = function () {
         );
     }
 
+    /**
+     * Handles the bullet fire. Function is to be called inside the game loop, where it sets the bullet visibility and movement is controlled
+     */
     function handleBulletFire () {
 
         // If it is the first frame after bullet got fired
@@ -191,6 +221,9 @@ var JumperBot = function () {
         };
     }
 
+    /**
+     * Resets the game i.e. bars, bullet and bot positions and other required variables
+     */
     function resetGame () {
         // Reset everything
         setBars();
@@ -208,6 +241,9 @@ var JumperBot = function () {
         currScore = 0;
     }
 
+    /**
+     * Game loop i.e. which is to be called infinitely
+     */
     function gameLoop () {
         // Clear the canvas
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -229,7 +265,6 @@ var JumperBot = function () {
                 // Increase the score only if the bars are moving
                 currScore++;
             }
-
 
             // If the bar was hit and the fired point is not below the bot
             // bot.posY > ( firedPointY + 20 ) because we want the bot to leave the rope if the hook goes lower to him
@@ -281,12 +316,18 @@ var JumperBot = function () {
         }
     }
 
+    /**
+     * Makes sure that the game is in the loop
+     */
     function startGame () {
         window.setInterval(gameLoop, 10);
     }
 
     return {
 
+        /**
+         * Initializes the game 
+         */
         init: function () {
 
             setBars();
@@ -297,6 +338,9 @@ var JumperBot = function () {
             startGame();
         },
 
+        /**
+         * UI bindings
+         */
         bindUI: function () {
 
             canvas.onclick = function ( ev ) {
