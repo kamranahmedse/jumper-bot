@@ -32,6 +32,7 @@
 			topScore = 0,
 			isActive = false,  // If the bot is in the move
 			swingY = 0,
+			botImg = '',
 			bulletFired = false,
 			swingBot = false,
 			bulletSpeed = 15, // Higher it is, faster the bullet will be
@@ -52,10 +53,13 @@
 		}
 
 		function setBot () {
-			bot.width = 10;
-			bot.height = 10;
+			bot.width = 24;
+			bot.height = 37;
 			bot.posX = canvas.width / 2;
 			bot.posY = canvas.height - bot.height - 50;
+
+			botImg = new Image();
+			botImg.src = "img/bot.svg";
 		}
 
 		function setBars () {
@@ -95,7 +99,8 @@
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			
 			// Create the player
-			context.fillRect(bot.posX, bot.posY, bot.width, bot.height);
+			// context.fillRect(bot.posX, bot.posY, bot.width, bot.height);
+			context.drawImage(botImg, bot.posX, bot.posY);
 
 			context.fillText(currScore + '/' + topScore, 5, 15);
 
@@ -229,9 +234,11 @@
 					swingX = -swingX; // Swing it backward
 				};
 
+				// If the bot goes down the bottom of the canvas
 				if ( bot.posY > canvas.height ) {
-					isActive = false
+					isActive = false; // Bot is dead
 				};
+
 			} else {
 				// Reset everything
 				setBars();
