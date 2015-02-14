@@ -1,38 +1,44 @@
 var JumperBot = function () {
+
     var canvas = document.getElementById('swingbot'),
+
         bot = {},
         bullet = {},
-        context = canvas.getContext('2d'),
         bars = [],
+
         barCount = 3,
         barWidth = 100,
         barHeight = 15,
-        firedPointX = 0,
-        firedPointY = 0,
-        barHitPointX = 0,
-        barHitPointY = 0,
-        barHit = false,
-        moveBars = false,
-        firedPointDist = 0,
-        swingX = 0,
-        currScore = 0,
-        topScore = 0,
-        isActive = false,  // If the bot is in the move
-        swingY = 0,
-        botImg = '',
-        bulletFired = false,
-        swingBot = false,
         bulletSpeed = 15, // Higher it is, faster the bullet will be
-        swingSpeed = 30;  // Higher it is, slower the bot will swing
+        swingSpeed = 30,  // Higher it is, slower the bot will swing
+        ropeThickness = 2, // Higher it is, thicker will the rope be
+
+        firedPointX = 0,    // Exact `x` point where user clicked
+        firedPointY = 0,    // Exact `y` point where user clicked
+        barHitPointX = 0,   // Point on canvas where the bullet hit the bar
+        barHitPointY = 0,   // Point on canvas where the bullet hit the bar
+        barHit = false,     // Used to decide if the bullet hit the bar
+        moveBars = false,   // Will decide if the bars are to be moved or not
+        firedPointDist = 0, // Will be cotaining the distance between the bullet hit position and player position
+        swingX = 0,         // Next x point where the bot will be while swinging
+        swingY = 0,         // Next y point where the bot will be while swinging
+        currScore = 0,
+        topScore = 0,     
+        isActive = false,  // If the bot is in the move. False means the game is inactive
+        botImg = '',       // Image object containing the robot image
+        bulletFired = false,
+        swingBot = false,     // Is the bot needed to swing (will happen whenever the rope will hit the bar)
+        relAngleX, relAngleY, relFiredPointX, relFiredPointY; // These values will be relative to the current bot position
 
     canvas.width = 400;
     canvas.height = 500;
 
     context = canvas.getContext('2d');
-    context.lineWidth = 2;
+    context.lineWidth = ropeThickness; 
 
-    var relAngleX, relAngleY, relFiredPointX, relFiredPointY;
-
+    /**
+     * Sets the bullet defaults
+     */
     function setBullet () {
         bullet.posX = 0;
         bullet.posY = 0;
@@ -40,6 +46,9 @@ var JumperBot = function () {
         bullet.width = 4;
     }
 
+    /**
+     * Sets the bot defaults
+     */
     function setBot () {
         bot.width = 24;
         bot.height = 37;
@@ -50,6 +59,9 @@ var JumperBot = function () {
         botImg.src = "img/bot.svg";
     }
 
+    /**
+     * Generates the bars along with their positions and populates them in the bar
+     */
     function setBars () {
         // Generate the bars positions
         for (var i = 0; i < barCount; i++) {
@@ -60,38 +72,32 @@ var JumperBot = function () {
         };
     }
 
-    setBars();
-    setBullet();
-    setBot();
-
-    canvas.onclick = function ( ev ) {
-
+    function fireBullet ( posX, posY ) {
         // Reset the bar hit or it will start throwing the rope
         // ..instead of the bullet
         barHit = false;
         isActive = true;
 
-        firedPointX = ev.clientX;
-        firedPointY = ev.clientY;
+        firedPointX = posX;
+        firedPointY = posY;
 
+        // Get the positions relative to the current bot position
         relFiredPointX = firedPointX - bot.posX;
         relFiredPointY = firedPointY - bot.posY;
 
+        // Relative angles to the fire position
         relAngleX = relAngleY = Math.atan2(relFiredPointY, relFiredPointX) * 57.32;
 
+        // Set the fired flag
         bulletFired = true;
     }
 
-    window.setInterval(function () {
-        // Clear 
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Create the player
-        // context.fillRect(bot.posX, bot.posY, bot.width, bot.height);
-        context.drawImage(botImg, bot.posX, bot.posY);
+    function populateScore () {
+        context.fillText(currScore + '/' + topScore, 5, 15);   
+    }
 
-        context.fillText(currScore + '/' + topScore, 5, 15);
 
+    function drawBars () {
         // Draw the bars
         for (var i = 0; i < barCount; i++) {
 
@@ -106,72 +112,115 @@ var JumperBot = function () {
             };
 
             context.fillRect(bars[i].posX, bars[i].posY, barWidth, barHeight);
+        };    
+    }
+
+    function drawPlayer () {
+        // context.fillRect(bot.posX, bot.posY, bot.width, bot.height);
+        context.drawImage(botImg, bot.posX, bot.posY);
+    }
+
+    function isGameOver () {
+        return !isActive;
+    }
+
+    function isNthBarHit ( barNum ) {
+        return (
+            bullet.posX >= bars[barNum].posX &&
+            bullet.posX <= ( bars[barNum].posX + barWidth )
+        ) && (
+            bullet.posY >= bars[barNum].posY &&
+            bullet.posY <= ( bars[barNum].posY + barHeight ) 
+        );
+    }
+
+    function handleBulletFire () {
+
+        // If it is the first frame after bullet got fired
+        if ( !bullet.posX && !bullet.posY ) {
+            bullet.posX = bot.posX;
+            bullet.posY = bot.posY;
         };
 
-        if ( isActive ) {
+        // Increment the bullet position so that it may move to the position
+        // ..towards which it is fired
+        bullet.posX += Math.cos(relAngleX * 0.017) * bulletSpeed;
+        bullet.posY -= Math.sin(relAngleY * -0.017) * bulletSpeed;
+
+        // If the bullet tries to go outside the canvas in sideways
+        if ( ( bullet.posX > canvas.width ) || ( bullet.posX < 0 ) ) {
+            // To divert the bullet in the reverse direction
+            relAngleX = relAngleX - relAngleY;
+        };
+
+        // To check if the bullet has hit any of the bars
+        for (var i = 0; i < barCount; i++) {
+
+            // If the bullet's current position overlaps with 
+            // any of the bars
+            if ( isNthBarHit( i ) ) {                        
+                // No bullet fired, it was a bar hit
+                bulletFired = false;
+                barHit = true;
+
+                // Since the bot has got a rope in his hand
+                // ..now swing
+                swingBot = true;
+                    
+                // Change the fired point, as this is the point where the rope will be thrown
+                firedPointX = bullet.posX;
+                firedPointY = bullet.posY;
+
+                // Reset the bullet position
+                bullet.posX = bullet.posY = 0;
+
+                return;
+            };
+
+            barHit = false;
+        };
+
+        // Show the bullet
+        context.fillRect(bullet.posX, bullet.posY, bullet.width, bullet.height);
+
+        // If the bullet goes out of the top of canvas
+        if ( bullet.posY < 0 ) {
+            // Reset that bullet
+            bullet.posX = bullet.posY = 0;
+            bulletFired = false
+        };
+    }
+
+    function resetGame () {
+        // Reset everything
+        setBars();
+        setBullet();
+        setBot();
+
+        swingX = swingY = firedPointX = firedPointY = firedPointDist = 0;
+        relAngleX = relAngleY = 0;
+        moveBars = barHit = swingBot = false;
+
+        if ( currScore > topScore ) {
+            topScore = currScore;
+        };
+
+        currScore = 0;
+    }
+
+    function gameLoop () {
+        // Clear the canvas
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        populateScore();
+        drawPlayer();
+        drawBars();
+
+        if ( !isGameOver() ) {
+
             // If the bullet gets fired
             if ( bulletFired ) {
-                
-                // If it is the first frame after bullet got fired
-                if ( !bullet.posX && !bullet.posY ) {
-                    bullet.posX = bot.posX;
-                    bullet.posY = bot.posY;
-                };
-
-                // Increment the bullet position so that it may move to the position
-                // ..towards which it is fired
-                bullet.posX += Math.cos(relAngleX * 0.017) * bulletSpeed;
-                bullet.posY -= Math.sin(relAngleY * -0.017) * bulletSpeed;
-
-                // If the bullet tries to go outside the canvas in sideways
-                if ( ( bullet.posX > canvas.width ) || ( bullet.posX < 0 ) ) {
-                    // To divert the bullet in the reverse direction
-                    relAngleX = relAngleX - relAngleY;
-                };
-
-                // To check if the bullet has hit any of the bars
-                for (var i = 0; i < barCount; i++) {
-
-                    // If the bullet's current position overlaps with 
-                    // any of the bars
-                    if ((
-                        bullet.posX >= bars[i].posX &&
-                        bullet.posX <= ( bars[i].posX + barWidth )
-                    ) && (
-                        bullet.posY >= bars[i].posY &&
-                        bullet.posY <= ( bars[i].posY + barHeight ) 
-                    )) {                        
-                        // No bullet fired, it was a bar hit
-                        bulletFired = false;
-                        barHit = true;
-
-                        // Since the player has got a rope in his hand
-                        // ..now swing
-                        swingBot = true;
-                            
-                        // Change the fired point, as this is the point where the rope will be thrown
-                        firedPointX = bullet.posX;
-                        firedPointY = bullet.posY;
-
-                        // Reset the bullet position
-                        bullet.posX = bullet.posY = 0;
-
-                        return;
-                    };
-
-                    barHit = false;
-                };
-
-                // Show the bullet
-                context.fillRect(bullet.posX, bullet.posY, bullet.width, bullet.height);
-
-                // If the bullet goes out of the top of canvas
-                if ( bullet.posY < 0 ) {
-                    // Reset that bullet
-                    bullet.posX = bullet.posY = 0;
-                    bulletFired = false
-                };
-
+                handleBulletFire();
             };
 
             if ( moveBars ) {
@@ -228,21 +277,32 @@ var JumperBot = function () {
             };
 
         } else {
-            // Reset everything
+            resetGame();
+        }
+    }
+
+    function startGame () {
+        window.setInterval(gameLoop, 10);
+    }
+
+    return {
+
+        init: function () {
+
             setBars();
             setBullet();
             setBot();
 
-            swingX = swingY = firedPointX = firedPointY = firedPointDist = 0;
-            relAngleX = relAngleY = 0;
-            moveBars = barHit = swingBot = false;
+            this.bindUI();
+            startGame();
+        },
 
-            if ( currScore > topScore ) {
-                topScore = currScore;
-            };
+        bindUI: function () {
 
-            currScore = 0;
+            canvas.onclick = function ( ev ) {
+                fireBullet( ev.clientX, ev.clientY );
+            }
+
         }
-
-    }, 10);
+    };
 }
