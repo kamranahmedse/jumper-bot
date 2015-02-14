@@ -63,7 +63,7 @@
 			for (var i = 0; i < barCount; i++) {
 				bars.push({
 					posX: Math.random() * ( canvas.width / 2 ),
-					posY: ( canvas.height / barCount ) * i     // So to make the bars span the whole height
+					posY: (( canvas.height / barCount ) * i) + 20     // So to make the bars span the whole height
 				});
 			};
 		}
@@ -241,6 +241,12 @@
 				firedPointX = firedPointY = 0;
 				barHit = false;
 				moveBars = false;
+
+				if ( currScore > topScore ) {
+					topScore = currScore;
+				};
+
+				currScore = 0;
 			}
 
 		}, 10);
