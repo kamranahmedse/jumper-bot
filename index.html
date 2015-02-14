@@ -19,7 +19,7 @@
 			bars = [],
 			barCount = 3,
 			barWidth = 100,
-			barHeight = 10,
+			barHeight = 15,
 			firedPointX = 0,
 			firedPointY = 0,
 			barHitPointX = 0,
@@ -112,7 +112,7 @@
 						bullet.posX <= ( bars[i].posX + barWidth )
 					) && (
 						bullet.posY >= bars[i].posY &&
-						bullet.posY <= ( bars[i].posY + barHeight + 5 ) 
+						bullet.posY <= ( bars[i].posY + barHeight ) 
 					)) {
 						// ^Added 5 to the height of bar to avoid the glitch
 						// where the rope wasn't able to hook itself
