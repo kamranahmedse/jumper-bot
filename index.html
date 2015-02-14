@@ -25,8 +25,13 @@
 			barHitPointX = 0,
 			barHitPointY = 0,
 			barHit = false,
+			n = 0,
+			swingX = 0,
+			swingY = 0,
 			bulletFired = false,
-			bulletSpeed = 15;
+			swingBot = false,
+			bulletSpeed = 15, // Higher it is, faster the bullet will be
+			swingSpeed = 30;  // Higher it is, slower the bot will swing
 
 		canvas.width = 400;
 		canvas.height = 500;
@@ -73,7 +78,7 @@
 		window.setInterval(function () {
 			// Clear 
 			context.clearRect(0, 0, canvas.width, canvas.height);
-
+			
 			// Create the player
 			context.fillRect(bot.posX, bot.posY, bot.width, bot.height);
 
@@ -117,6 +122,10 @@
 						// No bullet fired, it was a bar hit
 						bulletFired = false;
 						barHit = true;
+
+						// Since the player has got a rope in his hand
+						// ..now swing
+						swingBot = true;
 							
 						// Change the fired point, as this is the point where the rope will be thrown
 						firedPointX = bullet.posX;
@@ -138,7 +147,10 @@
 					bullet.posX = bullet.posY = 0;
 					bulletFired = false
 				};
+
 			};
+
+			n = Math.sqrt(Math.pow((bot.posX - firedPointX), 2) + Math.pow((bot.posY - firedPointY), 2));
 
 			// If the bar was hit and the fired point is not below the bot
 			if ( barHit && bot.posY > ( firedPointY + 20 ) ) {
@@ -147,6 +159,22 @@
 				context.moveTo( (bot.posX + bot.width / 2), bot.posY );
 				context.lineTo(firedPointX, firedPointY);
 				context.stroke();
+
+				swingX += ( firedPointX - bot.posX ) / (n * swingSpeed);
+				swingY += ( firedPointY - bot.posY ) / (n * swingSpeed);
+
+			} else {
+				barHit = false;
+			};
+
+			// To simulate gravity i.e. the bot may 
+			// get slowly pulled down
+			swingY += 0.01;
+
+			// If we have to swing the bot
+			if ( swingBot === true ) {
+				bot.posX += swingX;
+				bot.posY += swingY;
 			};
 
 		}, 10);
