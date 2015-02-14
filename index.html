@@ -238,9 +238,9 @@
 				setBullet();
 				setBot();
 
-				firedPointX = firedPointY = 0;
-				barHit = false;
-				moveBars = false;
+				swingX = swingY = firedPointX = firedPointY = firedPointDist = 0;
+				relAngleX = relAngleY = 0;
+				moveBars = barHit = swingBot = false;
 
 				if ( currScore > topScore ) {
 					topScore = currScore;
