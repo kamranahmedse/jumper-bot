@@ -13,6 +13,7 @@ var JumperBot = function () {
         bulletSpeed = 15, // Higher it is, faster the bullet will be
         swingSpeed = 30,  // Higher it is, slower the bot will swing
         ropeThickness = 2, // Higher it is, thicker will the rope be
+        canReset = false, // Used to ensure that the game does not constantly reset when the jumper is stationary at the game start
 
         // Do not change below this line unless you know exactly what you are doing
         scorePosX = 5,      // Position (x point) where score is to be displayed
@@ -67,6 +68,9 @@ var JumperBot = function () {
      * Generates the bars along with their positions and populates them in the bar
      */
     function setBars () {
+        // Use a new array to ensure old bar objects are discarded from memory
+        bars = [];
+
         // Generate the bars positions
         for (var i = 0; i < barCount; i++) {
             bars.push({
@@ -99,6 +103,9 @@ var JumperBot = function () {
 
         // Set the fired flag
         bulletFired = true;
+
+        // Character is no longer stationary at the game start. Reset function may now get called upon game over.
+        canReset = true;
     }
 
     /**
@@ -315,7 +322,10 @@ var JumperBot = function () {
             };
 
         } else {
-            resetGame();
+            if(canReset) {
+                resetGame();
+                canReset = false;
+            }
         }
     }
 
