@@ -356,8 +356,8 @@ var JumperBot = function () {
          */
         bindUI: function () {
 
-            canvas.onclick = function ( ev ) {
-                fireBullet( ev.clientX, ev.clientY );
+            canvas.onclick = function ( event ) {
+                fireBullet( event.layerX, event.layerY );
             }
 
         }
